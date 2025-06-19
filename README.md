@@ -1,24 +1,41 @@
-# README
+# Social Connect
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+**Social Connect** is a full-stack social media web application built with **Ruby on Rails 7**. It enables users to post updates, like and reply to content, mention other users, and interact in a modern, responsive UI.
 
-Things you may want to cover:
+## 🚀 Features
 
-* Ruby version
+- User authentication with **Devise**
+- Create, edit, and delete posts
+- Comment and reply to comments (nested replies)
+- Mentions with autocomplete and notifications
+- Like and unlike posts and comments
+- View user profiles and mentions
+- Responsive design using **Bootstrap 5**
+- Dynamic frontend behavior via **Stimulus JS**
 
-* System dependencies
+## 🛠️ Tech Stack
 
-* Configuration
+| Layer        | Technology         |
+|--------------|--------------------|
+| Backend      | Ruby on Rails 7    |
+| Frontend     | ERB + Bootstrap 5  |
+| JS Framework | Stimulus JS        |
+| Authentication | Devise          |
+| Database     | SQLite3 / PostgreSQL |
 
-* Database creation
+## 💻 Setup Instructions
 
-* Database initialization
+### 1. Clone the repository
+```bash
+git clone https://github.com/anas04ak/social_connect.git
+cd social_connect
 
-* How to run the test suite
+bundle install
+yarn install 
 
-* Services (job queues, cache servers, search engines, etc.)
+rails db:create
+rails db:migrate
+rails db:seed  
 
-* Deployment instructions
+rails server
 
-* ...
