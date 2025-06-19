@@ -1,0 +1,42 @@
+<div class="container mt-5 d-flex justify-content-center">
+  <div class="card p-4 shadow-lg border-0" style="max-width: 600px; background: #fff; border-radius: 1rem;">
+    <h3 class="mb-4 fw-bold text-center">Edit Profile</h3>
+
+    <%= form_with model: @user, local: true, html: { multipart: true } do |f| %>
+      <div class="mb-3">
+        <%= f.label :username, class: "form-label fw-semibold" %>
+        <%= f.text_field :username, class: "form-control", placeholder: "Enter your username" %>
+      </div>
+
+      <div class="mb-3">
+        <%= f.label :date_of_birth, class: "form-label fw-semibold" %>
+        <%= f.date_field :date_of_birth, class: "form-control" %>
+      </div>
+
+      <div class="mb-3">
+        <%= f.label :avatar, class: "form-label fw-semibold" %>
+        <%= f.file_field :avatar, class: "form-control" %>
+      </div>
+
+      <div class="text-center mt-4">
+        <%= f.submit "💾 Save Changes", class: "btn btn-save px-4 py-2 rounded-pill fw-semibold" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<style>
+    .btn-save {
+  background: linear-gradient(to right, #f09433, #dc2743, #cc2366, #bc1888);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 12px rgba(204, 35, 102, 0.3);
+  transition: background 0.3s, transform 0.2s;
+}
+
+.btn-save:hover {
+  background: linear-gradient(to right, #bc1888, #cc2366, #dc2743, #e6683c, #f09433);
+  transform: scale(1.02);
+  box-shadow: 0 6px 16px rgba(204, 35, 102, 0.4);
+}
+</style>

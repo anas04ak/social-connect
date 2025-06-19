@@ -1,0 +1,17 @@
+ => 
+[[32m#<Comment:0x000055f102455990[0m
+  id: [34m[1m5[0m,
+  user_id: [34m[1m6[0m,
+  post_id: [34m[1m18[0m,
+  content: [31m[1m"[0m[31mcomment 1223\r\n[0m[31m[1m"[0m,
+  parent_id: [36m[1mnil[0m,
+  created_at: Mon, 16 Jun 2025 14:28:11.594845000 UTC +00:00,
+  updated_at: Mon, 16 Jun 2025 14:28:11.594845000 UTC +00:00[32m>[0m,
+ [32m#<Comment:0x000055f1015991b8[0m
+  id: [34m[1m6[0m,
+  user_id: [34m[1m6[0m,
+  post_id: [34m[1m18[0m,
+  content: [31m[1m"[0m[31mreply 1[0m[31m[1m"[0m,
+  parent_id: [36m[1mnil[0m,
+  created_at: Mon, 16 Jun 2025 14:44:14.549112000 UTC +00:00,
+  updated_at: Mon, 16 Jun 2025 14:44:14.549112000 UTC +00:00[32m>[0m] 

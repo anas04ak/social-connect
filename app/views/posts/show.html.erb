@@ -1,0 +1,166 @@
+<div data-controller="reply" class="container mt-5">
+  <div class="card shadow-lg border-0 rounded-4 p-4">
+    <div class="card-body">
+      <!-- Post Meta Info -->
+      <div class="d-flex align-items-center mb-3">
+        <%= link_to user_profile_path(@post.user), class: "d-inline-block" do %>
+        <% if @post.user.avatar.attached? %>
+          <%= image_tag @post.user.avatar, class: "rounded-circle me-2 avatar-glow", alt: "User Avatar", width: 45, height: 45 %>
+        <% else %>
+          <%= image_tag "default_avatar.png", class: "rounded-circle me-2 avatar-glow", alt: "Default Avatar", width: 45, height: 45 %>
+        <% end %>
+        <% end %>
+        <h6 class="mb-0 text-muted">
+          Posted by <%= @post.user.username.present? ? @post.user.username : @post.user.email %>
+        </h6>
+      </div>
+
+      <% if @post.image.attached? %>
+        <div class="mb-3 d-flex justify-content-center align-items-center image-wrapper" style="height: 50vh;">
+          <%= image_tag @post.image, class: "img-fluid rounded shadowed-image", style: "width: 80%; height: 100%; object-fit: contain;" %>
+        </div>
+      <% end %>
+
+      <!-- Post Content -->
+      <h4 class="fw-bold mb-2 text-gradient"><%= @post.title %></h4>
+      <p class="card-text fs-5"><%= @post.content %></p>
+
+      <!-- Post Time -->
+      <small class="text-muted">⏱ <%= time_ago_in_words(@post.created_at) %> ago</small>
+
+      <!-- Post Owner Actions -->
+      <% if @post.user == current_user %>
+        <div class="mt-3 d-flex gap-2">
+          <%= link_to 'Edit', edit_post_path(@post), class: 'btn btn-sm btn-outline-gradient px-3' %>
+          <%= button_to 'Delete', post_path(@post), method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-sm btn-outline-danger px-3' %>
+        </div>
+      <% end %>
+
+      <hr class="my-4">
+
+      <!-- Comments -->
+      <h5 class="fw-bold mb-3 text-gradient">💬 Comments</h5>
+      <% @post.comments.where(parent_id: nil).each do |comment| %>
+        <%= render partial: "comments/comment", locals: { comment: comment, depth: 1 } %>
+      <% end %>
+
+      <!-- Reply Form -->
+      <div id="comment-reply-form" class="mt-4 d-none">
+        <div class="alert alert-info py-2 px-3 mb-2" id="replying-to" style="font-size: 0.9rem;">
+          Replying to: <span id="reply-email" class="fw-semibold"></span>
+          <a href="#" id="cancel-reply" class="ms-2 text-danger text-decoration-none" style="font-size: 0.8rem;">Cancel</a>
+        </div>
+
+        <%= form_with model: [ @post, Comment.new ], local: true do |f| %>
+          <div class="mb-3">
+            <%= f.text_area :content, class: "form-control rounded-pill", rows: 2, placeholder: "Write your reply..." %>
+            <%= f.hidden_field :parent_id, id: "comment_parent_id" %>
+          </div>
+          <%= f.submit "Post Reply", class: "btn btn-gradient btn-sm text-white px-3" %>
+        <% end %>
+      </div>
+
+      <!-- Comment Form -->
+      <div id="main-comment-form" class="mt-5">
+        <%= form_with model: [ @post, Comment.new ], local: true, data: { controller: "mention" } do |f| %>
+          <div class="mb-3 position-relative">
+            <%= f.label :content, "Write a comment", class: "form-label fw-semibold" %>
+            <%= f.text_area :content,
+                  class: "form-control rounded-pill",
+                  rows: 3,
+                  data: {
+                    mention_target: "textarea",
+                    action: "input->mention#search keydown->mention#navigate"
+                  } %>
+
+            <!-- Mention Dropdown -->
+            <div class="list-group position-absolute z-3 mt-1 w-100 d-none"
+                data-mention-target="dropdown"
+                style="max-height: 150px; overflow-y: auto; background-color: white;">
+            </div>
+
+            <%= f.hidden_field :parent_id, id: "comment_parent_id" %>
+          </div>
+
+          <%= f.submit "Post Comment", class: "btn btn-gradient text-white rounded-pill fw-semibold px-4 py-2" %>
+        <% end %>
+      </div>
+
+      <!-- Back to posts -->
+      <div class="mt-4">
+        <%= link_to '⬅ Back to Posts', posts_path, class: "btn btn-outline-secondary rounded-pill px-4" %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Style -->
+<style>
+  .text-gradient {
+    background: linear-gradient(to right, #f09433, #dc2743, #cc2366, #bc1888);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .btn-gradient {
+    background: linear-gradient(to right, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+    border: none;
+  }
+
+  .btn-gradient:hover {
+    opacity: 0.9;
+  }
+
+  .btn-outline-gradient {
+    border: 2px solid #cc2366;
+    color: #cc2366;
+    background-color: transparent;
+  }
+
+  .btn-outline-gradient:hover {
+    background: #cc2366;
+    color: white;
+  }
+
+  .form-control:focus {
+    border-color: #dc2743;
+    box-shadow: 0 0 0 0.2rem rgba(220, 39, 67, 0.25);
+  }
+
+  .avatar-glow {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* soft shadow for depth */
+  border: 2px solid white; /* white ring around avatar */
+  background-color: white;
+  padding: 2px;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.avatar-glow:hover {
+  transform: scale(1.05); /* subtle hover effect */
+  box-shadow: 0 6px 16px rgba(204, 35, 102, 0.4); /* themed glow on hover */
+}
+
+.shadowed-image {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25); /* subtle depth */
+  background-color: white;
+  padding: 8px;
+  border-radius: 1rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.shadowed-image:hover {
+  transform: scale(1.01);
+  box-shadow: 0 12px 30px rgba(204, 35, 102, 0.3); /* themed hover glow */
+}
+
+.image-wrapper {
+  background-color: #f8f9fa; /* light gray background to contrast the image */
+  border-radius: 1rem;
+  padding: 10px;
+}
+
+.active {
+  background-color: #cc2366;
+  color: white;
+}
+</style>
