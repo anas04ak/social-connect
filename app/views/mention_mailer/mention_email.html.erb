@@ -1,0 +1,12 @@
+<h2>You've been mentioned!</h2>
+
+<p>
+  <strong><%= @comment.user.username || @comment.user.email %></strong> mentioned you in a comment:
+</p>
+
+<blockquote><%= @comment.content %></blockquote>
+
+<p>
+  View the post:
+  <%= link_to "Click here", post_url(@post) %>
+</p>

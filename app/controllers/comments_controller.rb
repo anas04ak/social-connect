@@ -17,7 +17,10 @@ class CommentsController < ApplicationController
     @comment.user = current_user
 
     if @comment.save
-      extract_mentions(@comment)
+      mentioned_users = extract_mentioned_users(@comment)
+      mentioned_users.each do |user|
+      MentionMailer.with(user: user, comment: @comment).mention_email.deliver_later
+    end
       redirect_to @post, notice: "Comment posted!"
     else
       redirect_to @post, alert: "Failed to post comment."
@@ -58,7 +61,7 @@ class CommentsController < ApplicationController
     params.require(:comment).permit(:content, :parent_id)
   end
 
-  def extract_mentions(comment)
+  def extract_mentioned_users(comment)
     usernames = comment.content.scan(/@(\w+)/).flatten.uniq
     users = User.where(username: usernames)
 
