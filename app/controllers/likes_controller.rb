@@ -3,7 +3,17 @@ class LikesController < ApplicationController
 
   def create
     likeable = find_likeable
-    likeable.likes.create(user: current_user)
+    like = likeable.likes.create(user: current_user)
+
+    if likeable.is_a?(Post) && likeable.user != current_user
+      Notification.create(
+        recipient: likeable.user,
+        actor: current_user,
+        action: "liked your post",
+        notifiable: like
+      )
+    end
+
     redirect_back fallback_location: posts_path
   end
 

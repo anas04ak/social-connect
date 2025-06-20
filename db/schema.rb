@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_19_122732) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_20_082942) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -69,6 +69,20 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_19_122732) do
     t.index ["user_id"], name: "index_mentions_on_user_id"
   end
 
+  create_table "notifications", force: :cascade do |t|
+    t.integer "recipient_id", null: false
+    t.integer "actor_id", null: false
+    t.string "action"
+    t.string "notifiable_type", null: false
+    t.integer "notifiable_id", null: false
+    t.boolean "read"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["actor_id"], name: "index_notifications_on_actor_id"
+    t.index ["notifiable_type", "notifiable_id"], name: "index_notifications_on_notifiable"
+    t.index ["recipient_id"], name: "index_notifications_on_recipient_id"
+  end
+
   create_table "posts", force: :cascade do |t|
     t.text "content"
     t.integer "user_id", null: false
@@ -99,5 +113,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_19_122732) do
   add_foreign_key "likes", "users"
   add_foreign_key "mentions", "comments"
   add_foreign_key "mentions", "users"
+  add_foreign_key "notifications", "users", column: "actor_id"
+  add_foreign_key "notifications", "users", column: "recipient_id"
   add_foreign_key "posts", "users"
 end

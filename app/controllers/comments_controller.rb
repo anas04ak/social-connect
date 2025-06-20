@@ -17,15 +17,44 @@ class CommentsController < ApplicationController
     @comment.user = current_user
 
     if @comment.save
+      # 🔔 Notify post owner (but avoid notifying self)
+      if @post.user != current_user
+        Notification.create(
+          recipient: @post.user,
+          actor: current_user,
+          action: "commented on your post",
+          notifiable: @comment
+        )
+      end
+
+      # 🔍 Extract mentioned users
       mentioned_users = extract_mentioned_users(@comment)
+
       mentioned_users.each do |user|
-      MentionMailer.with(user: user, comment: @comment).mention_email.deliver_later
-    end
+        # Avoid notifying the same user twice (e.g., post owner already notified)
+        next if user == current_user
+
+        # 💾 Save mention record
+        Mention.create(user: user, comment: @comment)
+
+        # 📬 Send email
+        MentionMailer.with(user: user, comment: @comment).mention_email.deliver_later
+
+        # 🛎 In-app notification
+        Notification.create(
+          recipient: user,
+          actor: current_user,
+          action: "mentioned you",
+          notifiable: @comment
+        )
+      end
+
       redirect_to @post, notice: "Comment posted!"
     else
       redirect_to @post, alert: "Failed to post comment."
     end
   end
+
 
   def edit
     @comment = Comment.find(params[:id])
