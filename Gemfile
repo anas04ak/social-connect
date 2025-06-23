@@ -44,6 +44,8 @@ gem "bootsnap", require: false
 gem "devise", "~> 4.9"
 gem 'dotenv-rails'
 
+gem 'sassc-rails'
+
 gem 'nokogiri'
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
@@ -52,6 +54,7 @@ gem 'nokogiri'
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri mswin mswin64 mingw x64_mingw ]
+  gem 'rubocop', require: false
 end
 
 group :development do

@@ -31,13 +31,10 @@ class CommentsController < ApplicationController
       mentioned_users.each do |user|
         next if user == current_user
 
-        # 💾 Save mention record
         Mention.create(user: user, comment: @comment)
 
-        # 📬 Send email
         MentionMailer.with(user: user, comment: @comment).mention_email.deliver_later
 
-        # 🛎 In-app notification
         Notification.create(
           recipient: user,
           actor: current_user,
@@ -51,7 +48,6 @@ class CommentsController < ApplicationController
       redirect_to @post, alert: "Failed to post comment."
     end
   end
-
 
   def edit
     @comment = Comment.find(params[:id])

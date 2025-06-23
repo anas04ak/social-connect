@@ -6,10 +6,6 @@ export default class extends Controller {
     commentEmail: String
   }
 
-  connect() {
-    console.log("Stimulus reply controller connected") 
-  }
-
   show(event) {
     event.preventDefault()
 

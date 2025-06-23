@@ -15,14 +15,11 @@ class InstagramController < ApplicationController
       json_data = doc.css('script[type="application/ld+json"]').text
       data = JSON.parse(json_data)
 
-      # Get username, profile pic
       username = data["alternateName"].sub('@', '')
       profile_pic = data["image"]
 
-      # Update user profile
       current_user.update(instagram_username: username, instagram_image_url: profile_pic)
 
-      # Get recent 9 image URLs from page
       images = doc.css("meta[property='og:image']").map { |m| m["content"] }.uniq.first(9)
 
       images.each do |img_url|
