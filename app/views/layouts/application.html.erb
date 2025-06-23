@@ -20,11 +20,17 @@
       <div class="ms-auto d-flex align-items-center gap-3">
   <% if user_signed_in? %>
     <div class="dropdown">
-      <a href="#" role="button" class="position-relative text-white fs-5" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+      <a href="#" role="button" class="position-relative text-white fs-5"
+        id="notificationDropdown"
+        data-bs-toggle="dropdown"
+        data-controller="notifications"
+        data-action="click->notifications#markAsRead"
+        aria-expanded="false">
+
         🔔
         <% unread_count = current_user.notifications.unread.count %>
         <% if unread_count > 0 %>
-          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+          <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
             <%= unread_count %>
           </span>
         <% end %>
@@ -33,7 +39,7 @@
         <% if current_user.notifications.any? %>
           <% current_user.notifications.order(created_at: :desc).limit(5).each do |notification| %>
             <li class="mb-1">
-              <div class="dropdown-item small fw-semibold <%= 'text-muted' if notification.read? %>">
+              <div class="dropdown-item small <%= notification.read? ? 'text-secondary' : 'fw-bold text-dark' %>">
                 <%= notification.actor.username.presence || notification.actor.email %>
                 <%= notification.action %>
                 <%= time_ago_in_words(notification.created_at) %> ago

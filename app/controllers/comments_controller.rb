@@ -4,13 +4,13 @@ class CommentsController < ApplicationController
   def index
     @post = Post.find(params[:post_id])
     @comments = @post.comments.where(parent_id: nil)
-                      .order(created_at: :asc)
-                      .offset(params[:offset].to_i)
-                      .limit(3)
+                     .order(created_at: :asc)
+                     .offset(params[:offset].to_i)
+                     .limit(3)
 
-    render partial: "comments/comment", collection: @comments, as: :comment, locals: { depth: 1 }
+    render partial: 'comments/comment', collection: @comments, as: :comment, locals: { depth: 1 }
   end
-  
+
   def create
     @post = Post.find(params[:post_id])
     @comment = @post.comments.build(comment_params)
@@ -21,7 +21,7 @@ class CommentsController < ApplicationController
         Notification.create(
           recipient: @post.user,
           actor: current_user,
-          action: "commented on your post",
+          action: 'commented on your post',
           notifiable: @comment
         )
       end
@@ -38,30 +38,30 @@ class CommentsController < ApplicationController
         Notification.create(
           recipient: user,
           actor: current_user,
-          action: "mentioned you",
+          action: 'mentioned you',
           notifiable: @comment
         )
       end
 
-      redirect_to @post, notice: "Comment posted!"
+      redirect_to @post, notice: 'Comment posted!'
     else
-      redirect_to @post, alert: "Failed to post comment."
+      redirect_to @post, alert: 'Failed to post comment.'
     end
   end
 
   def edit
     @comment = Comment.find(params[:id])
-    unless @comment.user == current_user
-      redirect_back fallback_location: root_path, alert: "Not authorized to edit this comment."
-    end
+    return if @comment.user == current_user
+
+    redirect_back fallback_location: root_path, alert: 'Not authorized to edit this comment.'
   end
 
   def update
     @comment = Comment.find(params[:id])
     if @comment.user != current_user
-      redirect_back fallback_location: root_path, alert: "Not authorized."
+      redirect_back fallback_location: root_path, alert: 'Not authorized.'
     elsif @comment.update(comment_params)
-      redirect_to post_path(@comment.post), notice: "Comment updated."
+      redirect_to post_path(@comment.post), notice: 'Comment updated.'
     else
       render :edit, status: :unprocessable_entity
     end
@@ -71,14 +71,14 @@ class CommentsController < ApplicationController
     comment = Comment.find(params[:id])
     if comment.user == current_user
       comment.destroy
-      redirect_back fallback_location: post_path(comment.post), notice: "Comment deleted."
+      redirect_back fallback_location: post_path(comment.post), notice: 'Comment deleted.'
     else
-      redirect_back fallback_location: post_path(comment.post), alert: "You are not authorized."
+      redirect_back fallback_location: post_path(comment.post), alert: 'You are not authorized.'
     end
   end
 
   private
-  
+
   def comment_params
     params.require(:comment).permit(:content, :parent_id)
   end
