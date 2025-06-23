@@ -16,13 +16,11 @@
     <%= post.new_record? ? "Create a New Post" : "Edit Your Post" %>
   </h4>
 
-  <!-- Title -->
   <div class="form-floating mb-4">
     <%= form.text_field :title, class: "form-control", placeholder: "Title" %>
     <%= form.label :title, "Title" %>
   </div>
 
-  <!-- Content -->
   <div class="form-floating mb-4">
     <%= form.text_area :content,
           class: "form-control",
@@ -31,7 +29,6 @@
     <%= form.label :content, "Write your post" %>
   </div>
 
-  <!-- Image Upload -->
   <div class="mb-4">
     <label class="form-label fw-semibold">Attach Image</label>
     <%= form.file_field :image, class: "form-control", data: { action: "image-preview#preview" } %>
@@ -43,14 +40,12 @@
       </div>
     <% end %>
 
-    <!-- Live preview before upload -->
     <div id="preview-container" class="mt-3 d-none">
       <strong>Preview:</strong>
       <img id="preview-image" src="#" class="img-fluid rounded mt-2 border" alt="Image Preview">
     </div>
   </div>
 
-  <!-- Submit -->
   <div class="d-grid">
     <%= form.submit(
           post.new_record? ? "🚀 Publish Post" : "💾 Update Post",

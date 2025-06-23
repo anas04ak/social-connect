@@ -32,5 +32,16 @@
         </p>
       <% end %>
     </div>
+
+    <% if user_signed_in? && current_user == @user %>
+  <%= form_with url: connect_instagram_path, method: :post, local: true do |form| %>
+    <div class="mb-3">
+      <%= form.label :instagram_url, "Connect to Instagram" %>
+      <%= form.text_field :instagram_url, placeholder: "https://www.instagram.com/your_profile", class: "form-control" %>
+    </div>
+    <%= form.submit "Connect", class: "btn btn-gradient" %>
+  <% end %>
+<% end %>
+
   </div>
 </div>

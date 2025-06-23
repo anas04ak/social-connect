@@ -20,7 +20,6 @@
         <%= simple_format(highlight_mentions(comment.content).html_safe) %>
       </div>
 
-      <!-- Like/Unlike Button -->
       <div class="d-flex align-items-center gap-2 mb-2">
         <% liked = comment.likes.exists?(user_id: current_user.id) %>
         <% if liked %>
@@ -55,7 +54,6 @@
     </div>
   </div>
 
-  <!-- Recursive replies -->
   <% comment.replies.each do |reply| %>
     <%= render partial: "comments/comment", locals: { comment: reply, depth: depth + 1 } %>
   <% end %>

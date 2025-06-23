@@ -17,7 +17,6 @@ class CommentsController < ApplicationController
     @comment.user = current_user
 
     if @comment.save
-      # 🔔 Notify post owner (but avoid notifying self)
       if @post.user != current_user
         Notification.create(
           recipient: @post.user,
@@ -27,11 +26,9 @@ class CommentsController < ApplicationController
         )
       end
 
-      # 🔍 Extract mentioned users
       mentioned_users = extract_mentioned_users(@comment)
 
       mentioned_users.each do |user|
-        # Avoid notifying the same user twice (e.g., post owner already notified)
         next if user == current_user
 
         # 💾 Save mention record

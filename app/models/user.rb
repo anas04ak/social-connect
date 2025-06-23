@@ -1,5 +1,4 @@
 class User < ApplicationRecord
-  # Devise modules...
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
@@ -10,7 +9,6 @@ class User < ApplicationRecord
   has_many :mentions
   has_many :mentions_in_comments, through: :mentions, source: :comment
 
-  # 👇 Fix: correct associations
   has_many :notifications, foreign_key: :recipient_id, dependent: :destroy
   has_many :sent_notifications, class_name: "Notification", foreign_key: :actor_id, dependent: :nullify
 

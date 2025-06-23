@@ -1,4 +1,3 @@
-# app/controllers/users_controller.rb
 class UsersController < ApplicationController
   def mentionable
     query = params[:query].to_s.downcase
