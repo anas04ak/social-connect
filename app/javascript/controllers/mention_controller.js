@@ -1,4 +1,3 @@
-// app/javascript/controllers/mention_controller.js
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
@@ -36,9 +35,9 @@ export default class extends Controller {
   }
 
   showDropdown(users) {
-this.dropdownTarget.innerHTML = users.map((user, index) =>
-  `<div class="mention-item ${index === this.activeIndex ? 'active' : ''}" data-index="${index}">@${user.username}</div>`
-).join("")
+    this.dropdownTarget.innerHTML = users.map((user, index) =>
+      `<div class="mention-item ${index === this.activeIndex ? 'active' : ''}" data-index="${index}">@${user.username}</div>`
+    ).join("")
 
     this.dropdownTarget.classList.remove("d-none")
   }

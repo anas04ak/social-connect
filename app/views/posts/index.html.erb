@@ -10,11 +10,9 @@
   <% @posts.each do |post| %>
   <div class="card mb-5 shadow-lg border-0 post-card position-relative">
     <div class="card-body">
-      <!-- Title as link -->
       <h4 class="card-title fw-bold mb-2">
         <%= link_to post.title, post_path(post), style: "color: #cc2366;", class: "text-decoration-none" %>
       </h4>
-
     <div class="d-flex align-items-center mb-3">
       <%= link_to user_profile_path(post.user), class: "d-inline-block" do %>
         <% if post.user.avatar.attached? %>
@@ -43,11 +41,11 @@
 
       <div class="d-flex justify-content-between align-items-center mt-3">
         <div class="text-muted small">
-          ⏱ <%= time_ago_in_words(post.created_at) %> ago
-        <% if post.updated_at != post.created_at %>
-          • 📝 Edited <%= time_ago_in_words(post.updated_at) %> ago
-        <% end %>
-      </div>
+            ⏱ <%= time_ago_in_words(post.created_at) %> ago
+          <% if post.updated_at != post.created_at %>
+            • 📝 Edited <%= time_ago_in_words(post.updated_at) %> ago
+          <% end %>
+        </div>
 
         <div class="d-flex gap-3 text-muted">
           <span><i class="bi bi-heart-fill text-danger me-1"></i><%= pluralize(post.likes.count, 'like') %></span>
@@ -136,9 +134,9 @@
 .post-image {
   width: 50%;
   height: auto;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25); /* subtle shadow */
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25); 
   border-radius: 1rem;
-  border: 3px solid #fff; /* white border for separation */
+  border: 3px solid #fff;
   background-color: #fff;
   padding: 4px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -146,7 +144,6 @@
 
 .post-image:hover {
   transform: scale(1.02);
-  box-shadow: 0 10px 24px rgba(204, 35, 102, 0.3); /* Instagram-style glow */
+  box-shadow: 0 10px 24px rgba(204, 35, 102, 0.3); 
 }
-
 </style>

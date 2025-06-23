@@ -1,40 +1,49 @@
-require "open-uri"
-require "nokogiri"
+require 'open-uri'
+require 'nokogiri'
+require 'cgi'
 
 class InstagramController < ApplicationController
   before_action :authenticate_user!
-
   def connect
     profile_url = params[:instagram_url]
-    return redirect_back fallback_location: authenticated_root_path, alert: "Invalid URL" unless profile_url.include?("instagram.com")
+
+    unless profile_url.include?('instagram.com')
+      return redirect_back fallback_location: authenticated_root_path, alert: 'Invalid URL'
+    end
 
     begin
-      html = URI.open(profile_url, "User-Agent" => "Mozilla/5.0").read
+      html = URI.open(profile_url, 'User-Agent' => 'Mozilla/5.0').read
       doc = Nokogiri::HTML.parse(html)
 
-      json_data = doc.css('script[type="application/ld+json"]').text
-      data = JSON.parse(json_data)
+      parsed_url = URI.parse(profile_url)
+      path_segments = parsed_url.path.split('/').reject(&:empty?)
+      username = path_segments.first
 
-      username = data["alternateName"].sub('@', '')
-      profile_pic = data["image"]
+      img_tags = doc.css('img')
+      profile_pic_url = nil
 
-      current_user.update(instagram_username: username, instagram_image_url: profile_pic)
+      img_tags.each do |img|
+        alt = img['alt']&.downcase
+        next unless alt&.include?('profile picture')
 
-      images = doc.css("meta[property='og:image']").map { |m| m["content"] }.uniq.first(9)
-
-      images.each do |img_url|
-        post = current_user.posts.build(
-          content: "Instagram post",
-          instagram_post: true,
-          image: URI.open(img_url)
-        )
-        post.save
+        # Try to find a URL that looks like a high-res profile pic
+        candidate = img['src']
+        if candidate.include?('fbcdn.net') || candidate.include?('instagram')
+          profile_pic_url = CGI.unescapeHTML(candidate)
+          break
+        end
       end
 
-      redirect_to user_profile_path(current_user), notice: "Instagram connected and posts imported!"
-    rescue => e
+      # Update user info
+      current_user.update(instagram_username: username, instagram_image_url: profile_pic_url)
+
+      # You *cannot* get recent posts reliably anymore from HTML
+      # Instagram loads them via JavaScript (client-side)
+
+      redirect_to user_profile_path(current_user), notice: 'Instagram profile connected!'
+    rescue StandardError => e
       Rails.logger.error e.message
-      redirect_back fallback_location: authenticated_root_path, alert: "Could not connect to Instagram."
+      redirect_back fallback_location: authenticated_root_path, alert: 'Could not connect to Instagram.'
     end
   end
 end
