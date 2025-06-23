@@ -1,44 +1,51 @@
-require 'open-uri'
+require 'ferrum'
 require 'nokogiri'
+require 'open-uri'
 require 'cgi'
 
 class InstagramController < ApplicationController
   before_action :authenticate_user!
+
   def connect
     profile_url = params[:instagram_url]
 
     unless profile_url.include?('instagram.com')
-      return redirect_back fallback_location: authenticated_root_path, alert: 'Invalid URL'
+      return redirect_back fallback_location: authenticated_root_path, alert: 'Invalid Instagram URL'
     end
 
     begin
-      html = URI.open(profile_url, 'User-Agent' => 'Mozilla/5.0').read
+      browser = Ferrum::Browser.new(timeout: 15, browser_options: { 'no-sandbox': nil })
+      browser.goto(profile_url)
+      sleep 5
+      html = browser.body
+      browser.quit
+
       doc = Nokogiri::HTML.parse(html)
+      img_tags = doc.css('img')
+      profile_pic_url = img_tags.first['src']
 
       parsed_url = URI.parse(profile_url)
-      path_segments = parsed_url.path.split('/').reject(&:empty?)
-      username = path_segments.first
+      username = parsed_url.path.split('/').reject(&:empty?).first
 
-      img_tags = doc.css('img')
-      profile_pic_url = nil
-
-      img_tags.each do |img|
-        alt = img['alt']&.downcase
-        next unless alt&.include?('profile picture')
-
-        candidate = img['src']
-        if candidate.include?('fbcdn.net') || candidate.include?('instagram')
-          profile_pic_url = CGI.unescapeHTML(candidate)
-          break
-        end
+      if profile_pic_url
+        download_and_attach_image(profile_pic_url)
+        current_user.update(instagram_username: username)
+        redirect_to user_profile_path(current_user), notice: 'Instagram profile connected!'
+      else
+        redirect_back fallback_location: authenticated_root_path, alert: 'Could not find profile image.'
       end
-
-      current_user.update(instagram_username: username, instagram_image_url: profile_pic_url)
-
-      redirect_to user_profile_path(current_user), notice: 'Instagram profile connected!'
     rescue StandardError => e
-      Rails.logger.error e.message
-      redirect_back fallback_location: authenticated_root_path, alert: 'Could not connect to Instagram.'
+      Rails.logger.error "[Instagram Connect Error] #{e.class}: #{e.message}"
+      redirect_back fallback_location: authenticated_root_path,
+                    alert: 'Something went wrong while connecting to Instagram.'
     end
+  end
+
+  private
+
+  def download_and_attach_image(url)
+    filename = File.basename(URI.parse(url).path)
+    file = URI.open(url, 'User-Agent' => 'Mozilla/5.0')
+    current_user.avatar.attach(io: file, filename: filename, content_type: 'image/jpeg')
   end
 end
