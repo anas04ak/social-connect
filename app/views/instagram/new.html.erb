@@ -1,0 +1,13 @@
+<div class="container mt-5 d-flex justify-content-center">
+  <div class="card shadow p-4" style="max-width: 600px;">
+    <h3 class="text-center mb-4">Connect to Instagram</h3>
+
+    <%= form_with url: connect_instagram_path, method: :post, local: true do |form| %>
+      <div class="mb-3">
+        <%= form.label :instagram_url, "Instagram Profile URL", class: "form-label" %>
+        <%= form.text_field :instagram_url, placeholder: "https://www.instagram.com/your_profile", class: "form-control" %>
+      </div>
+      <%= form.submit "Connect", class: "btn btn-primary w-100" %>
+    <% end %>
+  </div>
+</div>

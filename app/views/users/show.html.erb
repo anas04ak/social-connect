@@ -50,13 +50,13 @@
     </div>
 
     <% if user_signed_in? && current_user == @user %>
-      <%= form_with url: connect_instagram_path, method: :post, local: true do |form| %>
-        <div class="mb-3">
-          <%= form.label :instagram_url, "Connect to Instagram" %>
-          <%= form.text_field :instagram_url, placeholder: "https://www.instagram.com/your_profile", class: "form-control" %>
-        </div>
-      <%= form.submit "Connect", class: "btn btn-gradient" %>
+      <% if @user.instagram_username.present? || @user.instagram_image_url.present? %>
+        <%= button_to "Disconnect Instagram", disconnect_instagram_path, method: :delete,
+            data: { confirm: "Are you sure you want to disconnect Instagram?" },
+            class: "btn btn-danger mt-3" %>
+      <% else %>
+        <%= link_to "Connect Instagram", new_instagram_path, class: "btn btn-gradient mt-3" %>
+      <% end %>
     <% end %>
-  <% end %>
   </div>
 </div>

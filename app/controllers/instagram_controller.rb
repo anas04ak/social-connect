@@ -41,6 +41,17 @@ class InstagramController < ApplicationController
     end
   end
 
+  def disconnect
+    current_user.update(
+      instagram_username: nil,
+      instagram_image_url: nil
+    )
+    redirect_to user_profile_path(current_user), notice: 'Instagram account disconnected.'
+  end
+
+  def new
+  end
+
   private
 
   def download_and_attach_image(url)

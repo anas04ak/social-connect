@@ -31,6 +31,8 @@ Rails.application.routes.draw do
   post '/notifications/mark_as_read', to: 'notifications#mark_as_read', as: :mark_notifications_as_read
 
   post 'connect_instagram', to: 'instagram#connect'
+  get  '/connect_instagram', to: 'instagram#new', as: 'new_instagram'
+  delete '/disconnect_instagram', to: 'instagram#disconnect', as: :disconnect_instagram
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
