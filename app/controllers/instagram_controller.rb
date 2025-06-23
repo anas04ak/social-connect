@@ -26,7 +26,6 @@ class InstagramController < ApplicationController
         alt = img['alt']&.downcase
         next unless alt&.include?('profile picture')
 
-        # Try to find a URL that looks like a high-res profile pic
         candidate = img['src']
         if candidate.include?('fbcdn.net') || candidate.include?('instagram')
           profile_pic_url = CGI.unescapeHTML(candidate)
@@ -34,11 +33,7 @@ class InstagramController < ApplicationController
         end
       end
 
-      # Update user info
       current_user.update(instagram_username: username, instagram_image_url: profile_pic_url)
-
-      # You *cannot* get recent posts reliably anymore from HTML
-      # Instagram loads them via JavaScript (client-side)
 
       redirect_to user_profile_path(current_user), notice: 'Instagram profile connected!'
     rescue StandardError => e
