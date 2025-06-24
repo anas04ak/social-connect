@@ -22,18 +22,30 @@ class InstagramController < ApplicationController
 
       doc = Nokogiri::HTML.parse(html)
       img_tags = doc.css('img')
+
       profile_pic_url = img_tags.first['src']
+
+      post_img_urls = img_tags.map { |img| img['src'] }
+                              .reject { |url| url == profile_pic_url }
+                              .uniq
+                              .first(9)
 
       parsed_url = URI.parse(profile_url)
       username = parsed_url.path.split('/').reject(&:empty?).first
 
-      if profile_pic_url
-        download_and_attach_image(profile_pic_url)
-        current_user.update(instagram_username: username)
-        redirect_to user_profile_path(current_user), notice: 'Instagram profile connected!'
-      else
-        redirect_back fallback_location: authenticated_root_path, alert: 'Could not find profile image.'
+      download_and_attach_image(profile_pic_url) if profile_pic_url
+      current_user.update(instagram_username: username)
+
+      current_user.instagram_photos.destroy_all
+
+      post_img_urls.each_with_index do |img_url, index|
+        file = URI.open(img_url, 'User-Agent' => 'Mozilla/5.0')
+        photo = current_user.instagram_photos.build
+        photo.image.attach(io: file, filename: "insta_post_#{index + 1}.jpg", content_type: 'image/jpeg')
+        photo.save
       end
+
+      redirect_to user_profile_path(current_user), notice: 'Instagram profile and posts connected!'
     rescue StandardError => e
       Rails.logger.error "[Instagram Connect Error] #{e.class}: #{e.message}"
       redirect_back fallback_location: authenticated_root_path,
@@ -46,6 +58,7 @@ class InstagramController < ApplicationController
       instagram_username: nil,
       instagram_image_url: nil
     )
+    current_user.instagram_photos.destroy_all
     redirect_to user_profile_path(current_user), notice: 'Instagram account disconnected.'
   end
 

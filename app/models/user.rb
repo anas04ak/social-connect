@@ -10,9 +10,11 @@ class User < ApplicationRecord
   has_many :mentions_in_comments, through: :mentions, source: :comment
 
   has_many :notifications, foreign_key: :recipient_id, dependent: :destroy
-  has_many :sent_notifications, class_name: "Notification", foreign_key: :actor_id, dependent: :nullify
+  has_many :sent_notifications, class_name: 'Notification', foreign_key: :actor_id, dependent: :nullify
 
   has_one_attached :avatar
+
+  has_many :instagram_photos, dependent: :destroy
 
   def age
     return unless date_of_birth.present?
