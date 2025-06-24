@@ -36,16 +36,20 @@ class InstagramController < ApplicationController
       download_and_attach_image(profile_pic_url) if profile_pic_url
       current_user.update(instagram_username: username)
 
-      current_user.instagram_photos.destroy_all
+      current_user.posts.where(source: :instagram).destroy_all
 
       post_img_urls.each_with_index do |img_url, index|
         file = URI.open(img_url, 'User-Agent' => 'Mozilla/5.0')
-        photo = current_user.instagram_photos.build
-        photo.image.attach(io: file, filename: "insta_post_#{index + 1}.jpg", content_type: 'image/jpeg')
-        photo.save
+        post = current_user.posts.build(
+          content: '',
+          source: :instagram,
+          external_id: "img_#{index + 1}"
+        )
+        post.image.attach(io: file, filename: "insta_post_#{index + 1}.jpg", content_type: 'image/jpeg')
+        post.save!
       end
 
-      redirect_to user_profile_path(current_user), notice: 'Instagram profile and posts connected!'
+      redirect_to user_profile_path(current_user), notice: 'Instagram images saved as posts!'
     rescue StandardError => e
       Rails.logger.error "[Instagram Connect Error] #{e.class}: #{e.message}"
       redirect_back fallback_location: authenticated_root_path,
@@ -58,12 +62,11 @@ class InstagramController < ApplicationController
       instagram_username: nil,
       instagram_image_url: nil
     )
-    current_user.instagram_photos.destroy_all
+    current_user.posts.where(source: :instagram).destroy_all
     redirect_to user_profile_path(current_user), notice: 'Instagram account disconnected.'
   end
 
-  def new
-  end
+  def new; end
 
   private
 

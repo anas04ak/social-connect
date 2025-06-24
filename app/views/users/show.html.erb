@@ -58,17 +58,5 @@
         <%= link_to "Connect Instagram", new_instagram_path, class: "btn btn-gradient mt-3" %>
       <% end %>
     <% end %>
-
-    <% if @user.instagram_photos.any? %>
-  <h5 class="mt-4 fw-bold">Latest Instagram Posts</h5>
-  <div class="row row-cols-3 g-2 mt-2">
-    <% @user.instagram_photos.each do |photo| %>
-      <div class="col">
-        <%= image_tag photo.image, class: "img-fluid rounded shadow-sm" %>
-      </div>
-    <% end %>
-  </div>
-<% end %>
-
   </div>
 </div>
