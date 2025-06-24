@@ -58,6 +58,13 @@ class InstagramController < ApplicationController
   end
 
   def disconnect
+    current_user.avatar.purge if current_user.avatar.attached?
+
+    if current_user.backup_avatar.attached?
+      current_user.avatar.attach(current_user.backup_avatar.blob)
+      current_user.backup_avatar.purge
+    end
+
     current_user.update(
       instagram_username: nil,
       instagram_image_url: nil
