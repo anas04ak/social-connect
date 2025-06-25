@@ -1,8 +1,3 @@
-require 'ferrum'
-require 'nokogiri'
-require 'open-uri'
-require 'cgi'
-
 class InstagramController < ApplicationController
   before_action :authenticate_user!
 
@@ -13,48 +8,9 @@ class InstagramController < ApplicationController
       return redirect_back fallback_location: authenticated_root_path, alert: 'Invalid Instagram URL'
     end
 
-    begin
-      browser = Ferrum::Browser.new(timeout: 15, browser_options: { 'no-sandbox': nil })
-      browser.goto(profile_url)
-      sleep 5
-      html = browser.body
-      browser.quit
+    InstagramConnectJob.perform_later(current_user.id, profile_url)
 
-      doc = Nokogiri::HTML.parse(html)
-      img_tags = doc.css('img')
-
-      profile_pic_url = img_tags.first['src']
-
-      post_img_urls = img_tags.map { |img| img['src'] }
-                              .reject { |url| url == profile_pic_url }
-                              .uniq
-                              .first(9)
-
-      parsed_url = URI.parse(profile_url)
-      username = parsed_url.path.split('/').reject(&:empty?).first
-
-      download_and_attach_image(profile_pic_url) if profile_pic_url
-      current_user.update(instagram_username: username)
-
-      current_user.posts.where(source: :instagram).destroy_all
-
-      post_img_urls.each_with_index do |img_url, index|
-        file = URI.open(img_url, 'User-Agent' => 'Mozilla/5.0')
-        post = current_user.posts.build(
-          content: '',
-          source: :instagram,
-          external_id: "img_#{index + 1}"
-        )
-        post.image.attach(io: file, filename: "insta_post_#{index + 1}.jpg", content_type: 'image/jpeg')
-        post.save!
-      end
-
-      redirect_to user_profile_path(current_user), notice: 'Instagram images saved as posts!'
-    rescue StandardError => e
-      Rails.logger.error "[Instagram Connect Error] #{e.class}: #{e.message}"
-      redirect_back fallback_location: authenticated_root_path,
-                    alert: 'Something went wrong while connecting to Instagram.'
-    end
+    redirect_to user_profile_path(current_user), notice: 'Connecting to Instagram... Posts will appear shortly.'
   end
 
   def disconnect
@@ -69,17 +25,11 @@ class InstagramController < ApplicationController
       instagram_username: nil,
       instagram_image_url: nil
     )
+
     current_user.posts.where(source: :instagram).destroy_all
+
     redirect_to user_profile_path(current_user), notice: 'Instagram account disconnected.'
   end
 
   def new; end
-
-  private
-
-  def download_and_attach_image(url)
-    filename = File.basename(URI.parse(url).path)
-    file = URI.open(url, 'User-Agent' => 'Mozilla/5.0')
-    current_user.avatar.attach(io: file, filename: filename, content_type: 'image/jpeg')
-  end
 end
