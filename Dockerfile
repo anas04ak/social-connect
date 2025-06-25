@@ -17,23 +17,32 @@ FROM base AS build
 
 # Install build dependencies
 RUN apt-get update -qq && apt-get install --no-install-recommends -y \
-    build-essential \
-    git \
-    libsqlite3-dev \
-    libvips \
-    pkg-config \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+  build-essential \
+  git \
+  libsqlite3-dev \
+  libvips \
+  pkg-config \
+  curl \
+  gnupg2 \
+  nodejs \
+  yarn \
+  chromium \
+  chromium-driver \
+  libgtk-3-0 \
+  libnss3 \
+  libxss1 \
+  libasound2 \
+  redis-tools \
+  && rm -rf /var/lib/apt/lists/*
 
 # Install gems
 COPY Gemfile Gemfile.lock ./
-
 RUN bundle install
 
 # Copy rest of the app
 COPY . .
 
-# Precompile assets (use dummy secret key)
+# Precompile assets
 RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
 
 # -------------------------------
@@ -43,19 +52,36 @@ FROM base
 
 # Install runtime packages only
 RUN apt-get update -qq && apt-get install --no-install-recommends -y \
-    libsqlite3-0 \
-    libvips \
-    && rm -rf /var/lib/apt/lists/*
+  libsqlite3-0 \
+  libvips \
+  nodejs \
+  yarn \
+  chromium \
+  chromium-driver \
+  libgtk-3-0 \
+  libnss3 \
+  libxss1 \
+  libasound2 \
+  redis-tools \
+  && rm -rf /var/lib/apt/lists/*
 
+# Copy app and dependencies from build stage
 COPY --from=build /usr/local/bundle /usr/local/bundle
 COPY --from=build /rails /rails
 
+# Copy start script
+COPY start.sh /rails/start.sh
+RUN chmod +x /rails/start.sh
+
+# Create and switch to non-root user
 RUN useradd rails --create-home --shell /bin/bash && \
     chown -R rails:rails /rails
 
 USER rails:rails
 
-ENTRYPOINT ["/rails/bin/docker-entrypoint"]
+WORKDIR /rails
 
 EXPOSE 3000
-CMD ["./bin/rails", "server", "-b", "0.0.0.0", "-p", "3000"]
+
+# Use start.sh as entrypoint
+ENTRYPOINT ["/rails/start.sh"]

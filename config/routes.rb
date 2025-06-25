@@ -34,6 +34,9 @@ Rails.application.routes.draw do
   get  '/connect_instagram', to: 'instagram#new', as: 'new_instagram'
   delete '/disconnect_instagram', to: 'instagram#disconnect', as: :disconnect_instagram
 
+  require 'sidekiq/web'
+  mount Sidekiq::Web => '/sidekiq'
+
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
