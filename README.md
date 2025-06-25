@@ -67,3 +67,5 @@ Launch the Rails console in Docker:
 docker run -it --rm -e RAILS_ENV=development social_connect \
   ./bin/rails console
 
+Make sure Redis is running and Sidekiq is started using:
+bundle exec sidekiq
